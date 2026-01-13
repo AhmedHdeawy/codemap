@@ -40,7 +40,7 @@ CodeMap creates a lightweight `.codemap/` directory that provides:
 - Quick navigation metadata
 - **Distributed per-directory indexes** for scalable large codebases
 
-## Installation
+## Manual Installation
 
 ```bash
 # Basic installation (Python parsing only)
