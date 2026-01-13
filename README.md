@@ -2,6 +2,27 @@
 
 LLM-friendly codebase indexer that reduces token consumption by 60-80% by enabling targeted line-range reads instead of full file reads.
 
+---
+
+## 🚀 Claude Code Plugin
+
+**Install CodeMap as a Claude Code plugin for automatic codebase navigation:**
+
+```bash
+# Add the marketplace
+claude plugin marketplace add AZidan/codemap
+
+# Install the plugin
+claude plugin install codemap
+```
+
+Once installed, Claude will automatically:
+- Use `codemap find` to locate symbols instead of scanning files
+- Read only relevant line ranges instead of full files
+- Auto-install the CLI tool if not present
+
+---
+
 ## Problem
 
 When LLMs work with code:
