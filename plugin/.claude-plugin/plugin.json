@@ -1,0 +1,8 @@
+{
+  "name": "codemap",
+  "description": "Structural codebase indexing for efficient navigation. Reduces token consumption by 60-80% through targeted line-range reads instead of full file scans.",
+  "version": "1.0.0",
+  "author": {
+    "name": "AZidan"
+  }
+}

@@ -40,6 +40,8 @@ htmlcov/
 
 # CodeMap output (generated)
 .codemap/
+.codemap.json
+**/.codemap.json
 
 # OS
 .DS_Store
@@ -48,3 +50,10 @@ Thumbs.db
 # Local config
 .env
 .env.local
+
+# Archives and temporary files
+Archive/
+*.zip
+
+# Local Claude settings (not skill definitions)
+.claude/settings.local.json

@@ -321,6 +321,35 @@ project/
 }
 ```
 
+## Claude Code Integration
+
+CodeMap includes a skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that enables automatic codebase navigation.
+
+### Quick Install
+
+```bash
+# Install the skill for a single project
+cp -r .claude/skills/codemap /path/to/your/project/.claude/skills/
+
+# Or install the plugin globally
+claude plugin install ./plugin
+```
+
+### What It Does
+
+Once installed, Claude will automatically use CodeMap when:
+- Looking for symbol definitions (classes, functions, methods)
+- Exploring file structure
+- Navigating large codebases
+
+The skill teaches Claude the optimal workflow:
+1. Use `codemap find` to locate symbols
+2. Read only the relevant line ranges
+3. Use `codemap show` for nested symbols
+4. Validate freshness before re-reading
+
+See [plugin/README.md](plugin/README.md) for detailed plugin documentation.
+
 ## LLM Usage Example
 
 Instead of reading entire files, LLMs can:
