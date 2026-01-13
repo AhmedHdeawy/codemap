@@ -1,0 +1,252 @@
+# CLAUDE.md - Agent Instructions for CodeMap
+
+## Project Context
+
+You are building **CodeMap**, a CLI tool that generates structural indexes of codebases to reduce LLM token consumption. The tool creates a `.codemap/` directory that mirrors the project structure, enabling targeted line-range reads instead of full file reads.
+
+## Quick Start Commands
+
+```bash
+# Setup
+cd codemap
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+
+# Run tests
+pytest
+
+# Run CLI
+codemap --help
+codemap init .
+codemap find "ClassName"
+```
+
+## Using CodeMap to Navigate This Codebase
+
+This project has a `.codemap/` index. **Use CodeMap before scanning files.**
+
+### Commands
+```bash
+codemap find "SymbolName"           # Find class/function/method/type by name
+codemap find "name" --type method   # Filter by type (class|function|method|interface|type)
+codemap show path/to/file.py        # Show file structure with line ranges
+codemap validate                    # Check if index is fresh
+codemap stats                       # View index statistics
+```
+
+### Workflow
+1. **Find symbol**: `codemap find "MapStore"` → `codemap/core/map_store.py:115-507 [class]`
+2. **Read targeted lines**: Read only lines 115-507 instead of the full file
+3. **Explore structure**: `codemap show codemap/core/map_store.py` to see all methods with line ranges
+4. **Validate before re-read**: After context compaction, `codemap validate` checks if line numbers are still valid
+
+### When to Use
+- **USE CodeMap**: Finding symbol definitions, understanding file structure, locating code by name
+- **READ full file**: Understanding implementation details, making edits, unindexed files
+
+### Direct JSON Access
+Symbol data is in `.codemap/<path>/.codemap.json` files - read directly for programmatic access.
+
+## Architecture Overview
+
+```
+codemap/
+├── cli.py                 # Click CLI - entry point
+├── core/
+│   ├── indexer.py         # Orchestrates indexing
+│   ├── hasher.py          # SHA256 file hashing
+│   └── map_store.py       # JSON map CRUD operations
+├── parsers/
+│   ├── base.py            # Abstract Parser class
+│   ├── python_parser.py   # AST-based (stdlib only)
+│   ├── typescript_parser.py  # tree-sitter based
+│   └── javascript_parser.py  # tree-sitter based
+├── hooks/
+│   ├── pre-commit         # Bash script
+│   └── installer.py       # Copies hook to .git/hooks/
+└── tests/
+```
+
+## Implementation Order
+
+Build in this sequence:
+
+### Phase 1: Core Foundation
+1. `core/hasher.py` - Simple, no dependencies
+2. `parsers/base.py` - Abstract interface
+3. `parsers/python_parser.py` - Use stdlib `ast` module only
+4. `core/map_store.py` - JSON read/write
+5. `core/indexer.py` - Ties everything together
+
+### Phase 2: CLI
+6. `cli.py` - Implement commands: init, update, find, show, validate
+
+### Phase 3: Additional Parsers
+7. `parsers/typescript_parser.py` - tree-sitter
+8. `parsers/javascript_parser.py` - tree-sitter
+
+### Phase 4: Git Integration
+9. `hooks/pre-commit` - Bash script
+10. `hooks/installer.py` - Copy hook to .git/hooks/
+
+### Phase 5: Tests
+11. Unit tests for parsers
+12. Integration tests for indexer
+13. CLI tests
+
+## Key Design Decisions
+
+### 1. Symbol Extraction
+Extract only these symbol types:
+- **Python**: `class`, `function`, `method`, `async_function`, `async_method`
+- **TypeScript/JS**: `class`, `function`, `method`, `arrow_function` (named only)
+
+Skip:
+- Variables/constants (too noisy)
+- Imports (not useful for navigation)
+- Decorators (include in parent symbol's line range)
+
+### 2. Line Numbers
+- Always 1-indexed (matches editor conventions)
+- Include decorators in the start line
+- End line is the actual last line of the symbol
+
+### 3. Signatures
+- Include parameter names and type annotations
+- Include return type if present
+- Truncate if longer than 100 chars
+
+### 4. Docstrings
+- First 150 chars only
+- Strip leading/trailing whitespace
+- null if no docstring
+
+### 5. Error Handling
+- If a file fails to parse, log warning and skip
+- Never crash on malformed code
+- Store partial results (valid files only)
+
+### 6. Hash Strategy
+- SHA256, truncated to 12 hex chars
+- Hash the raw bytes, not decoded text
+- Used to detect changes without re-reading content
+
+## Code Style
+
+- Use type hints everywhere
+- Dataclasses for data structures
+- No global state
+- Functions should be small (<30 lines)
+- Use pathlib.Path, not os.path
+
+## Testing Requirements
+
+- Every parser needs tests with fixture files
+- Test edge cases: empty files, syntax errors, unicode
+- Integration test: index → modify file → validate detects change
+
+## Common Pitfalls to Avoid
+
+1. **Don't include node_modules/venv in default scan** - Use exclude patterns
+2. **Handle encoding errors** - Some files may not be UTF-8
+3. **Don't crash on binary files** - Skip gracefully
+4. **Watch for circular imports** - Keep module dependencies clean
+5. **Tree-sitter returns bytes** - Decode positions correctly
+
+## File Patterns
+
+Default include:
+```
+**/*.py
+**/*.ts
+**/*.tsx
+**/*.js
+**/*.jsx
+```
+
+Default exclude:
+```
+**/node_modules/**
+**/__pycache__/**
+**/venv/**
+**/.venv/**
+**/dist/**
+**/build/**
+**/*.min.js
+**/migrations/**
+```
+
+## Example Usage Flow
+
+```bash
+# User initializes
+$ codemap init ./src
+Scanning ./src...
+Found 47 files
+Indexed 382 symbols
+Saved to ./src/.codemap/
+
+# User queries
+$ codemap find "PaymentProcessor"
+src/payments/processor.py:15-189 [class] PaymentProcessor
+  └── process_payment:37-98 [method]
+  └── validate_card:100-145 [method]
+
+# User updates single file after edit
+$ codemap update src/payments/processor.py
+Updated src/payments/processor.py (3 symbols changed)
+
+# User validates freshness
+$ codemap validate
+Stale entries (2):
+  - src/utils/helpers.py
+  - src/models/user.py
+Run 'codemap update --all' to refresh
+```
+
+## Output Format Guidelines
+
+### Directory Structure (.codemap/)
+```
+.codemap/
+├── .codemap.json              # Root manifest (stats, config, directory list)
+├── _root.codemap.json         # Files in project root
+├── src/
+│   ├── .codemap.json          # Files in src/
+│   └── components/
+│       └── .codemap.json      # Files in src/components/
+```
+
+### JSON Output
+- Pretty printed with 2-space indent
+- Sorted keys for stable diffs
+- ISO 8601 timestamps
+
+### CLI Output
+- Use colors sparingly (click.style)
+- Show progress for long operations
+- Exit code 0 on success, 1 on error
+
+## Dependencies
+
+```
+# Required
+click>=8.0        # CLI framework
+pyyaml>=6.0       # Config file parsing
+
+# For TypeScript/JavaScript parsing
+tree-sitter>=0.21
+tree-sitter-javascript>=0.21  
+tree-sitter-typescript>=0.21
+
+# Dev
+pytest>=7.0
+```
+
+## When Stuck
+
+1. Check PROJECT_SPEC.md for detailed data structures
+2. Python parser should use ONLY stdlib `ast` module
+3. For tree-sitter issues, check their Python bindings docs
+4. Test with real-world files from open source projects
