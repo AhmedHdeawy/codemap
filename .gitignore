@@ -57,3 +57,7 @@ Archive/
 
 # Local Claude settings (not skill definitions)
 .claude/settings.local.json
+
+# Personal skills (only include codemap skill)
+.claude/skills/*/
+!.claude/skills/codemap/
