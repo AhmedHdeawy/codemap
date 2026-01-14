@@ -4,7 +4,6 @@
 
 **Cut your LLM token costs by 41-80% when coding with AI**
 
-[![PyPI version](https://badge.fury.io/py/codemap.svg)](https://pypi.org/project/codemap/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
@@ -12,6 +11,8 @@
 Stop burning tokens on full-file reads. CodeMap creates a lightweight navigation index so LLMs read only the code they need.
 
 [Quick Start](#-tldr) • [Installation](#installation) • [Commands](#commands) • [Claude Plugin](#-claude-code-plugin) • [Comparison](#comparison-with-alternatives)
+
+![CodeMap Demo](docs/codemap-demo.gif)
 
 </div>
 
@@ -47,7 +48,7 @@ CodeMap creates a `.codemap/` index containing:
 ## ⚡ TL;DR
 
 ```bash
-pip install codemap
+pip install git+https://github.com/AZidan/codemap.git
 codemap init .
 codemap find "ClassName"
 # → src/file.py:15-89 [class] ClassName
@@ -76,19 +77,19 @@ codemap find "ClassName"
 ### Recommended (Most Users)
 
 ```bash
-pip install codemap
+pip install git+https://github.com/AZidan/codemap.git
 ```
 
 ### With TypeScript/JavaScript Support
 
 ```bash
-pip install "codemap[treesitter]"
+pip install "codemap[treesitter] @ git+https://github.com/AZidan/codemap.git"
 ```
 
 ### Full Installation (Watch Mode + All Languages)
 
 ```bash
-pip install "codemap[all]"
+pip install "codemap[all] @ git+https://github.com/AZidan/codemap.git"
 ```
 
 ### From Source
@@ -167,7 +168,6 @@ No changes? No need to re-read. Tokens saved.
 
 ### ❌ Skip CodeMap when:
 
-- Writing code **from scratch** (nothing to index yet)
 - Working with **single-file scripts**
 - Your **entire codebase fits in context** anyway
 - You need **full semantic analysis** (use Serena/LSP instead)
@@ -376,16 +376,23 @@ This is why CodeMap achieves 41% better token efficiency than LSP-based tools on
 | Language | Parser | Install | Symbol Types |
 |----------|--------|---------|--------------|
 | **Python** | stdlib `ast` | (included) | class, function, method, async_function, async_method |
-| **TypeScript** | tree-sitter | `pip install .[treesitter]` | class, function, method, interface, type, enum |
-| **JavaScript** | tree-sitter | `pip install .[treesitter]` | class, function, method, async_function, async_method |
-| **Go** | tree-sitter | `pip install .[go]` | function, method, struct, interface, type |
-| **Java** | tree-sitter | `pip install .[java]` | class, interface, enum, method |
-| **C#** | tree-sitter | `pip install .[csharp]` | class, interface, struct, enum, method, property |
-| **Rust** | tree-sitter | `pip install .[rust]` | function, struct, enum, trait, impl, module |
+| **TypeScript** | tree-sitter | see below | class, function, method, interface, type, enum |
+| **JavaScript** | tree-sitter | see below | class, function, method, async_function, async_method |
+| **Go** | tree-sitter | see below | function, method, struct, interface, type |
+| **Java** | tree-sitter | see below | class, interface, enum, method |
+| **C#** | tree-sitter | see below | class, interface, struct, enum, method, property |
+| **Rust** | tree-sitter | see below | function, struct, enum, trait, impl, module |
 
 ```bash
+# Install with specific language support
+pip install "codemap[treesitter] @ git+https://github.com/AZidan/codemap.git"  # TS/JS
+pip install "codemap[go] @ git+https://github.com/AZidan/codemap.git"          # Go
+pip install "codemap[java] @ git+https://github.com/AZidan/codemap.git"        # Java
+pip install "codemap[csharp] @ git+https://github.com/AZidan/codemap.git"      # C#
+pip install "codemap[rust] @ git+https://github.com/AZidan/codemap.git"        # Rust
+
 # Install all languages
-pip install .[languages]
+pip install "codemap[languages] @ git+https://github.com/AZidan/codemap.git"
 ```
 
 > **Adding a language?** See [CONTRIBUTING.md](CONTRIBUTING.md) - new languages only need ~50 lines of config!
