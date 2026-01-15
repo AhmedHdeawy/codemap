@@ -101,6 +101,7 @@ def _get_extensions_for_languages(languages: list[str]) -> list[str]:
         "yaml": [".yaml", ".yml"],
         "kotlin": [".kt", ".kts"],
         "swift": [".swift"],
+        "php": [".php", ".phtml"],
     }
 
     extensions = []
@@ -151,5 +152,7 @@ def get_language(filepath: Path) -> str | None:
         ".kt": "kotlin",
         ".kts": "kotlin",
         ".swift": "swift",
+        ".php": "php",
+        ".phtml": "php",
     }
     return extension_to_lang.get(suffix)
