@@ -13,7 +13,7 @@ The CodeMap skill teaches Claude how to use pre-built codebase indexes stored in
 Install the CodeMap CLI tool:
 
 ```bash
-pip install codemap
+pip install git+https://github.com/AZidan/codemap.git
 ```
 
 For additional language support:
