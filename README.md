@@ -75,6 +75,14 @@ codemap find "ClassName"
 
 ## Installation
 
+### Claude Code:
+
+Skip manual install — use the plugin instead:
+```bash
+claude plugin marketplace add AZidan/codemap
+claude plugin install codemap
+```
+
 ### Recommended (Most Users)
 
 ```bash
@@ -100,12 +108,6 @@ git clone https://github.com/azidan/codemap.git
 cd codemap
 pip install -e ".[all]"
 ```
-
-> **💡 Claude Code Users:** Skip manual install — use the plugin instead:
-> ```bash
-> claude plugin marketplace add AZidan/codemap
-> claude plugin install codemap
-> ```
 
 ---
 
