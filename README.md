@@ -2,15 +2,17 @@
 
 # 🗺️ CodeMap
 
-**Cut your LLM token costs by 41-80% when coding with AI**
+**A lightweight index that makes LLM code exploration cheaper — not smarter.**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/) [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blueviolet)](https://docs.anthropic.com/en/docs/claude-code)
 
-Stop burning tokens on full-file reads. CodeMap creates a lightweight navigation index so LLMs read only the code they need.
+CodeMap does **not** try to understand your code, infer architecture, or decide what's relevant. That job belongs to the LLM.
 
-[Quick Start](#-tldr) • [Installation](#installation) • [Commands](#commands) • [Claude Plugin](#-claude-code-plugin) • [Comparison](#comparison-with-alternatives)
+CodeMap exists for one reason:
+
+> **To make each step of an LLM's reasoning over a codebase cost fewer tokens.**
+
+[Quick Start](#-quick-start) • [How It Works](#how-it-works) • [Commands](#commands) • [Claude Plugin](#-claude-code-plugin) • [Comparison](#comparison-with-alternatives)
 
 ![CodeMap Demo](docs/codemap-demo.gif)
 
@@ -18,165 +20,134 @@ Stop burning tokens on full-file reads. CodeMap creates a lightweight navigation
 
 ---
 
-## How It Works
+## The Problem
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│  WITHOUT CodeMap                  WITH CodeMap                 │
-├────────────────────────────────────────────────────────────────┤
-│                                                                │
-│  LLM: "Edit UserService"          LLM: "Edit UserService"      │
-│        ↓                                ↓                      │
-│  Read user.py (500 lines)         codemap find "UserService"   │
-│  = 6,000 tokens                         ↓                      │
-│                                   → user.py:15-89              │
-│                                         ↓                      │
-│                                   Read lines 15-89 only        │
-│                                   = 1,000 tokens               │
-│                                                                │
-│  ❌ Token cost: 6,000             ✅ Token cost: 1,000 (-83%)  │
-└────────────────────────────────────────────────────────────────┘
-```
+LLMs explore codebases iteratively. They:
 
-CodeMap creates a `.codemap/` index containing:
-- **Symbol locations** → exact line ranges for every class, function, method
-- **File hashes** → detect changes without re-reading content  
-- **Hierarchical structure** → navigate nested symbols efficiently
+1. Think about what they need
+2. Read some code
+3. Think again
+4. Read more code
+5. Repeat
+
+The problem is that **reading code is expensive**.
+
+Without help, an LLM often has to:
+- Read entire files
+- Re-read the same files after context resets
+- Pull in large chunks "just in case"
+
+This quickly leads to massive token usage—even when the LLM only needed a small part of each file.
 
 ---
 
-## ⚡ TL;DR
+## The Insight
+
+LLMs don't need *less reasoning*. They need **cheaper reads**.
+
+If you make each "read code" step smaller and more precise, the *same reasoning process* becomes dramatically cheaper.
+
+**The bottleneck is not intelligence — it's I/O cost.**
+
+That's what CodeMap fixes.
+
+---
+
+## What CodeMap Is (and Is Not)
+
+### ✅ What CodeMap **is**
+
+- A **structural index** of your codebase
+- A fast way to locate **symbols and their exact line ranges**
+- A tool that lets an LLM jump directly to relevant snippets
+- A **cost-reduction layer** for iterative LLM reasoning
+
+### ❌ What CodeMap is **not**
+
+- Not a semantic analyzer
+- Not an architecture inference engine
+- Not a replacement for LSPs
+- Not an agent
+- Not "smart"
+
+CodeMap does not decide *what* code matters. It only makes it cheaper to *read* the code the LLM decides to look at.
+
+---
+
+## How This Changes LLM Code Exploration
+
+### Without CodeMap
+
+```
+LLM thinks
+  → reads 5 full files (~30K tokens)
+  → thinks
+  → reads 3 more full files (~18K tokens)
+
+Total: ~48K tokens
+```
+
+### With CodeMap
+
+```
+LLM thinks
+  → queries symbols → reads 5 targeted snippets (~5K tokens)
+  → thinks
+  → queries again → reads 3 more snippets (~3K tokens)
+
+Total: ~8K tokens
+```
+
+**Same reasoning. Same conclusions. ~83% fewer tokens.**
+
+The LLM can always escalate: snippet → larger slice → full file. CodeMap never blocks access—it just makes precision cheap.
+
+---
+
+## 📊 Measured Impact
+
+The savings compound across a session:
+
+| Scenario | Without CodeMap | With CodeMap | Savings |
+|----------|-----------------|--------------|---------|
+| Single class lookup | 1,700 tokens | 1,000 tokens | **41%** |
+| 10-file refactor | 51,000 tokens | 11,600 tokens | **77%** |
+| 50-turn coding session | 70,000 tokens | 21,000 tokens | **70%** |
+
+It's not about any single lookup. It's about making **every** lookup cheaper and letting those savings multiply.
+
+---
+
+## ⚡ Quick Start
 
 ```bash
 pip install git+https://github.com/AZidan/codemap.git
 codemap init .
-codemap watch . &   # Keep index auto-updated in background
+codemap watch . &   # Keep index updated in background
 codemap find "ClassName"
 # → src/file.py:15-89 [class] ClassName
 
-# Now read only lines 15-89 instead of the entire file
-```
-
-**That's it.** You just saved 60-80% of tokens.
-
----
-
-## 📊 Real-World Results
-
-| Scenario | Without CodeMap | With CodeMap | Savings |
-|----------|-----------------|--------------|---------|
-| Find & edit a class | 1,700 tokens | 1,000 tokens | **41%** |
-| Navigate 10-file refactor | 51,000 tokens | 11,600 tokens | **77%** |
-| Long coding session (50 turns) | 70,000 tokens | 21,000 tokens | **70%** |
-
-*Tested against Serena (LSP-based tool) on equivalent tasks*
-
----
-
-## Installation
-
-### Claude Code:
-
-Skip manual install — use the plugin instead:
-```bash
-claude plugin marketplace add AZidan/codemap
-claude plugin install codemap
-```
-
-### Recommended (Most Users)
-
-```bash
-pip install git+https://github.com/AZidan/codemap.git
-```
-
-### With TypeScript/JavaScript Support
-
-```bash
-pip install "codemap[treesitter] @ git+https://github.com/AZidan/codemap.git"
-```
-
-### Full Installation (Watch Mode + All Languages)
-
-```bash
-pip install "codemap[all] @ git+https://github.com/AZidan/codemap.git"
-```
-
-### From Source
-
-```bash
-git clone https://github.com/azidan/codemap.git
-cd codemap
-pip install -e ".[all]"
+# Now the LLM reads only lines 15-89 instead of the entire file
 ```
 
 ---
 
-## Quick Start
+## How It Works
 
-### 1. Index Your Codebase
+1. CodeMap scans your repository and builds a **symbol index**
+2. Each symbol is mapped to:
+   - File path
+   - Start line / end line
+   - Type (function, class, method, etc.)
+   - Signature and docstring (optional)
+3. The index is stored locally under `.codemap/`
+4. An LLM (or human) can:
+   - Search for symbols by name
+   - Read only the exact lines needed
+   - Check if files changed without re-reading them
+   - Repeat as part of its reasoning loop
 
-```bash
-codemap init ./src
-```
-
-Output:
-```
-Scanning ./src...
-Indexed 47 files, 382 symbols
-Saved to .codemap/
-```
-
-### 2. Start Watch Mode (Recommended)
-
-Keep the index automatically updated as you work:
-
-```bash
-codemap watch . &
-```
-
-This runs in the background and updates the index whenever files change.
-
-### 3. Find Symbols
-
-```bash
-codemap find "PaymentProcessor"
-```
-
-Output:
-```
-src/payments/processor.py:15-189 [class] PaymentProcessor
-  └── process_payment [method] L26-58
-  └── validate_card [method] L60-88
-```
-
-### 4. Read Only What You Need
-
-Instead of reading the entire 500-line file, read just lines 15-189:
-
-```python
-# LLM reads only the relevant section
-view("src/payments/processor.py", line_range=[15, 189])
-```
-
-No need to manually update - watch mode keeps the index fresh.
-
----
-
-## When to Use CodeMap
-
-### ✅ Use CodeMap when:
-
-- Working with codebases **> 10 files**
-- Frequently **hitting token limits** with AI assistants
-- Using **Claude Code, Cursor, Aider**, or similar tools
-- Doing **refactoring across multiple files**
-- Your team wants to **reduce API costs**
-
-### ❌ Skip CodeMap when:
-
-- Working with **single-file scripts**
-- Your **entire codebase fits in context** anyway
-- You need **full semantic analysis** (use Serena/LSP instead)
+No embeddings. No inference. No opinions.
 
 ---
 
@@ -184,7 +155,7 @@ No need to manually update - watch mode keeps the index fresh.
 
 ### `codemap init [PATH]`
 
-Index a directory and create the `.codemap/` structure.
+Build the index for a directory.
 
 ```bash
 codemap init                     # Index current directory
@@ -211,7 +182,7 @@ src/services/user.py:20-45 [method] process_request
 
 ### `codemap show FILE`
 
-Display file structure with symbols, line ranges, and signatures.
+Display file structure with symbols and line ranges.
 
 ```bash
 codemap show src/services/user.py
@@ -236,7 +207,7 @@ Symbols:
 
 ### `codemap validate [FILE]`
 
-Check if indexed files have changed.
+Check if indexed files have changed—**without re-reading them**.
 
 ```bash
 codemap validate              # Check all files
@@ -251,6 +222,8 @@ Stale entries (2):
 
 Run 'codemap update --all' to refresh
 ```
+
+This is where hash-based staleness detection saves tokens. The LLM can check if a file changed without paying to read it again.
 
 ### `codemap update [FILE] [--all]`
 
@@ -322,7 +295,7 @@ codemap install-hooks
 
 ## 🔌 Claude Code Plugin
 
-CodeMap includes a plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that enables automatic codebase navigation.
+The plugin teaches [Claude Code](https://docs.anthropic.com/en/docs/claude-code) to use CodeMap automatically.
 
 ### Installation
 
@@ -334,14 +307,15 @@ claude plugin marketplace add AZidan/codemap
 claude plugin install codemap
 ```
 
-### What It Does
+### What Changes
 
-Once installed, Claude will automatically:
+Once installed, Claude will:
+1. Use `codemap find` to locate symbols instead of scanning files
+2. Read only the relevant line ranges instead of full files
+3. Use `codemap validate` to check staleness before re-reading
+4. Auto-install the CLI if not present
 
-1. ✅ Use `codemap find` to locate symbols instead of scanning files
-2. ✅ Read only relevant line ranges instead of full files
-3. ✅ Validate freshness before re-reading after context resets
-4. ✅ Auto-install the CLI if not present
+The LLM's reasoning doesn't change—each step just gets cheaper.
 
 ### Manual Skill Installation
 
@@ -354,26 +328,35 @@ See [plugin/README.md](plugin/README.md) for detailed documentation.
 
 ---
 
-## Comparison with Alternatives
+## Installation
 
-| Feature | CodeMap | Aider RepoMap | Serena | RepoPrompt |
-|---------|:-------:|:-------------:|:------:|:----------:|
-| **Token efficiency** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| **Line-range navigation** | ✅ | ❌ | ❌ | ❌ |
-| **Hash-based staleness** | ✅ | ❌ | ❌ | ❌ |
-| **Watch mode** | ✅ | ❌ | ❌ | ❌ |
-| **Claude Code plugin** | ✅ | ❌ | ✅ (MCP) | ✅ (MCP) |
-| **Setup complexity** | Low | Medium | High (LSP) | Low |
-| **Languages supported** | 15 | 20+ | 10+ | Many |
-| **Approach** | Navigation | Summarization | Semantic | Context building |
+### Claude Code (Recommended)
 
-### Why CodeMap is Different
+```bash
+claude plugin marketplace add AZidan/codemap
+claude plugin install codemap
+```
 
-Most tools focus on **summarization** — condensing code into smaller representations.
+### pip Install
 
-CodeMap focuses on **navigation** — telling the LLM exactly **where to look**.
+```bash
+# Basic (Python only)
+pip install git+https://github.com/AZidan/codemap.git
 
-This is why CodeMap achieves 41% better token efficiency than LSP-based tools on navigation tasks. You don't need full semantic analysis to find and edit code.
+# With TypeScript/JavaScript support
+pip install "codemap[treesitter] @ git+https://github.com/AZidan/codemap.git"
+
+# All languages + watch mode
+pip install "codemap[all] @ git+https://github.com/AZidan/codemap.git"
+```
+
+### From Source
+
+```bash
+git clone https://github.com/azidan/codemap.git
+cd codemap
+pip install -e ".[all]"
+```
 
 ---
 
@@ -415,7 +398,7 @@ pip install "codemap[css] @ git+https://github.com/AZidan/codemap.git"         #
 pip install "codemap[languages] @ git+https://github.com/AZidan/codemap.git"
 ```
 
-> **Adding a language?** See [CONTRIBUTING.md](CONTRIBUTING.md) - new languages only need ~50 lines of config!
+Language support is intentionally modular and extensible.
 
 ---
 
@@ -514,35 +497,51 @@ Each `.codemap.json` contains:
 
 ---
 
-## LLM Integration Example
+## When CodeMap Is a Good Fit
 
-Here's how an LLM should use CodeMap:
+- **Large repositories** where context limits matter
+- **Long coding sessions** where savings compound
+- **Refactoring tasks** that touch many files
+- **Token-sensitive workflows** where API costs matter
+- **200K context models** where every token counts
 
-### Without CodeMap ❌
+## When CodeMap Is Not the Right Tool
 
-```
-1. Read entire user.py (500 lines, 6000 tokens)
-2. Find UserService class
-3. Make edit
-4. Context resets...
-5. Read entire user.py again (6000 more tokens)
-```
+- **Small projects** that fit entirely in context anyway
+- **Deep semantic analysis** — use LSP tools instead
+- **Architecture inference** — CodeMap doesn't infer anything
+- **1M token contexts** where limits rarely matter
 
-### With CodeMap ✅
+CodeMap is deliberately simple.
 
-```
-1. Run: codemap find "UserService"
-   → src/user.py:15-89 [class] UserService
+---
 
-2. Read only lines 15-89 (1000 tokens)
+## Comparison with Alternatives
 
-3. Make edit
+| Feature | CodeMap | Aider RepoMap | Serena | RepoPrompt |
+|---------|---------|---------------|--------|------------|
+| **Approach** | Lookup index | Summarization | Semantic (LSP) | Context building |
+| **Who decides relevance** | LLM | Tool (PageRank) | Tool | Tool |
+| **Token cost model** | Per-lookup | Upfront | Per-query | Upfront |
+| **Line-range precision** | ✅ Exact | ❌ Approximate | ❌ Full symbols | ❌ Full files |
+| **Hash-based staleness** | ✅ | ❌ | ❌ | ❌ |
+| **Watch mode** | ✅ | ❌ | ❌ | ❌ |
+| **Setup complexity** | Low | Medium | High | Low |
 
-4. Context resets...
+The key difference: other tools try to predict what context matters. CodeMap lets the LLM decide, and just makes each decision cheaper to act on.
 
-5. Run: codemap validate src/user.py
-   → Up to date ✓ (no need to re-read!)
-```
+---
+
+## Design Philosophy
+
+> **Do one thing. Do it well. Stay dumb.**
+
+CodeMap is intentionally:
+- **Deterministic** — same query, same results
+- **Transparent** — just file paths and line numbers
+- **Predictable** — no inference, no surprises
+
+It is a primitive—not a framework.
 
 ---
 
@@ -610,24 +609,14 @@ codemap/
 
 ## 🤝 Contributing
 
-Contributions are welcome! Here's where help is needed:
+Contributions welcome! Areas where help is needed:
 
-- [ ] **New language parsers** — Ruby, PHP, Scala, more!
-- [ ] **MCP server mode** — For non-Claude tools
-- [ ] **Fuzzy symbol search** — `codemap find "usr srv"` → `UserService`
-- [ ] **VSCode extension** — GUI for non-CLI users
-- [ ] **Performance optimization** — Faster indexing for huge repos
+- **New language parsers** — Ruby, PHP, Scala
+- **MCP server mode** — For non-Claude tools
+- **Fuzzy symbol search** — `codemap find "usr srv"` → `UserService`
+- **VSCode extension** — GUI for non-CLI users
 
-### How to Contribute
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`pytest`)
-5. Submit a pull request
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
-
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 ---
 
 ## 💬 Community & Support
@@ -649,13 +638,13 @@ MIT License — see [LICENSE](LICENSE) for details.
 
 - Inspired by [Aider's RepoMap](https://aider.chat/docs/repomap.html) concept
 - Built with [Click](https://click.palletsprojects.com/) for CLI
-- Uses [tree-sitter](https://tree-sitter.github.io/) for TypeScript/JavaScript parsing
+- Uses [tree-sitter](https://tree-sitter.github.io/) for multi-language parsing
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for developers tired of burning tokens**
+**CodeMap: Because the bottleneck is I/O cost, not intelligence.**
 
 [⬆ Back to top](#-codemap)
 
