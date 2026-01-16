@@ -78,6 +78,8 @@ codemap/
 │   ├── rust_parser.py        # tree-sitter based
 │   ├── c_parser.py           # tree-sitter based
 │   ├── cpp_parser.py         # tree-sitter based
+│   ├── html_parser.py        # tree-sitter based
+│   ├── css_parser.py         # tree-sitter based
 │   ├── markdown_parser.py    # Regex-based H2/H3/H4 headers
 │   └── yaml_parser.py        # Recursive key hierarchy
 ├── hooks/
@@ -127,6 +129,8 @@ Extract only these symbol types:
 - **Rust**: `function`, `struct`, `enum`, `trait`, `impl`, `module`
 - **C**: `function`, `struct`, `enum`, `typedef`
 - **C++**: `class`, `struct`, `function`, `method`, `namespace`, `enum`, `template`
+- **HTML**: `element` (semantic: header, nav, main, section, article, aside, footer, form), `id` (elements with id attribute)
+- **CSS**: `class` (.selector), `id` (#selector), `selector` (element), `pseudo` (:root), `media` (@media), `keyframe` (@keyframes)
 - **Markdown**: `section` (H2), `subsection` (H3), `subsubsection` (H4)
 - **YAML**: `key`, `section` (nested mappings), `list`, `item`
 
@@ -206,6 +210,9 @@ Default include:
 **/*.hh
 **/*.cxx
 **/*.hxx
+**/*.html
+**/*.htm
+**/*.css
 **/*.md
 **/*.yaml
 **/*.yml
@@ -297,6 +304,10 @@ tree-sitter-c-sharp>=0.21
 tree-sitter-rust>=0.21
 tree-sitter-c>=0.21
 tree-sitter-cpp>=0.21
+
+# For HTML/CSS parsing
+tree-sitter-html>=0.23
+tree-sitter-css>=0.23
 
 # Dev
 pytest>=7.0

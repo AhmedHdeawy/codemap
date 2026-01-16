@@ -67,6 +67,18 @@ try:
 except ImportError:
     CppParser = None
 
+try:
+    from .html_parser import HtmlParser
+    __all__.append("HtmlParser")
+except ImportError:
+    HtmlParser = None
+
+try:
+    from .css_parser import CssParser
+    __all__.append("CssParser")
+except ImportError:
+    CssParser = None
+
 
 def get_available_parsers() -> list[type[Parser]]:
     """Return list of all available parser classes."""
@@ -92,6 +104,10 @@ def get_available_parsers() -> list[type[Parser]]:
         parsers.append(CParser)
     if CppParser:
         parsers.append(CppParser)
+    if HtmlParser:
+        parsers.append(HtmlParser)
+    if CssParser:
+        parsers.append(CssParser)
 
     return parsers
 

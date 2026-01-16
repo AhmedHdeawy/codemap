@@ -101,6 +101,20 @@ class Indexer:
         except ImportError:
             logger.debug("C++ parser not available (tree-sitter-cpp not installed)")
 
+        # HTML parser (optional, requires tree-sitter)
+        try:
+            from ..parsers.html_parser import HtmlParser
+            self._parsers["html"] = HtmlParser()
+        except ImportError:
+            logger.debug("HTML parser not available (tree-sitter-html not installed)")
+
+        # CSS parser (optional, requires tree-sitter)
+        try:
+            from ..parsers.css_parser import CssParser
+            self._parsers["css"] = CssParser()
+        except ImportError:
+            logger.debug("CSS parser not available (tree-sitter-css not installed)")
+
     @classmethod
     def load_existing(cls, root: Path | None = None) -> "Indexer":
         """Load an existing codemap and create an indexer.

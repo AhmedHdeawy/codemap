@@ -65,9 +65,17 @@ cpp = [
     "tree-sitter>=0.21",
     "tree-sitter-cpp>=0.21",
 ]
+html = [
+    "tree-sitter>=0.21",
+    "tree-sitter-html>=0.23",
+]
+css = [
+    "tree-sitter>=0.21",
+    "tree-sitter-css>=0.23",
+]
 # All languages bundle
 languages = [
-    "codemap[treesitter,go,java,csharp,rust,kotlin,swift,c,cpp]",
+    "codemap[treesitter,go,java,csharp,rust,kotlin,swift,c,cpp,html,css]",
 ]
 watch = [
     "watchdog>=3.0",
