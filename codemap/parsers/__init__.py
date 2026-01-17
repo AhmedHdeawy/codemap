@@ -79,6 +79,12 @@ try:
 except ImportError:
     CssParser = None
 
+try:
+    from .php_parser import PHPParser
+    __all__.append("PHPParser")
+except ImportError:
+    PHPParser = None
+
 
 def get_available_parsers() -> list[type[Parser]]:
     """Return list of all available parser classes."""
@@ -108,6 +114,8 @@ def get_available_parsers() -> list[type[Parser]]:
         parsers.append(HtmlParser)
     if CssParser:
         parsers.append(CssParser)
+    if PHPParser:
+        parsers.append(PHPParser)
 
     return parsers
 

@@ -115,6 +115,13 @@ class Indexer:
         except ImportError:
             logger.debug("CSS parser not available (tree-sitter-css not installed)")
 
+        # PHP parser (optional, requires tree-sitter)
+        try:
+            from ..parsers.php_parser import PHPParser
+            self._parsers["php"] = PHPParser()
+        except ImportError:
+            logger.debug("PHP parser not available (tree-sitter-php not installed)")
+
     @classmethod
     def load_existing(cls, root: Path | None = None) -> "Indexer":
         """Load an existing codemap and create an indexer.

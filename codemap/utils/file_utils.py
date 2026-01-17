@@ -105,6 +105,7 @@ def _get_extensions_for_languages(languages: list[str]) -> list[str]:
         "cpp": [".cpp", ".hpp", ".cc", ".hh", ".cxx", ".hxx"],
         "html": [".html", ".htm"],
         "css": [".css"],
+        "php": [".php", ".phtml"],
     }
 
     extensions = []
@@ -166,5 +167,7 @@ def get_language(filepath: Path) -> str | None:
         ".html": "html",
         ".htm": "html",
         ".css": "css",
+        ".php": "php",
+        ".phtml": "php",
     }
     return extension_to_lang.get(suffix)
