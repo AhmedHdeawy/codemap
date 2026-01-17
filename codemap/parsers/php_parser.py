@@ -69,6 +69,8 @@ class PHPParser(TreeSitterParser):
     """
 
     config = PHP_CONFIG
+    extensions = [".php", ".phtml"]
+    language = "php"
 
     def __init__(self):
         """Initialize the PHP parser with the php_only grammar."""
