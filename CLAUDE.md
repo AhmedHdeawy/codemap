@@ -106,6 +106,8 @@ Build in this sequence:
 7. `parsers/typescript_parser.py` - tree-sitter
 8. `parsers/javascript_parser.py` - tree-sitter
 
+> **Adding New Language Support**: See `docs/adding-language-support.md` for the complete guide on implementing new language parsers, including architecture patterns, git workflow, and testing requirements.
+
 ### Phase 4: Git Integration
 9. `hooks/pre-commit` - Bash script
 10. `hooks/installer.py` - Copy hook to .git/hooks/
@@ -129,6 +131,8 @@ Extract only these symbol types:
 - **Rust**: `function`, `struct`, `enum`, `trait`, `impl`, `module`
 - **C**: `function`, `struct`, `enum`, `typedef`
 - **C++**: `class`, `struct`, `function`, `method`, `namespace`, `enum`, `template`
+- **PHP**: `class`, `interface`, `trait`, `enum`, `function`, `method`
+- **Dart**: `class`, `enum`, `mixin`, `extension`, `function`, `method`, `constructor`, `getter`, `setter`
 - **HTML**: `element` (semantic: header, nav, main, section, article, aside, footer, form), `id` (elements with id attribute)
 - **CSS**: `class` (.selector), `id` (#selector), `selector` (element), `pseudo` (:root), `media` (@media), `keyframe` (@keyframes)
 - **Markdown**: `section` (H2), `subsection` (H3), `subsubsection` (H4)
@@ -341,7 +345,7 @@ codemap watch . &                   # Start watch mode (auto-updates index)
 ```
 
 ### Supported Languages
-Python, TypeScript, JavaScript, Kotlin, Swift, Go, Java, C#, Rust, C, C++, Markdown, YAML
+Python, TypeScript, JavaScript, Kotlin, Swift, Go, Java, C#, Rust, C, C++, PHP, Dart, HTML, CSS, Markdown, YAML
 
 ### Workflow
 1. **Start watch mode**: `codemap watch . &` (run once per session)
