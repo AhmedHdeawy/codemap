@@ -85,6 +85,12 @@ try:
 except ImportError:
     PHPParser = None
 
+try:
+    from .dart_parser import DartParser
+    __all__.append("DartParser")
+except ImportError:
+    DartParser = None
+
 
 def get_available_parsers() -> list[type[Parser]]:
     """Return list of all available parser classes."""
@@ -116,6 +122,8 @@ def get_available_parsers() -> list[type[Parser]]:
         parsers.append(CssParser)
     if PHPParser:
         parsers.append(PHPParser)
+    if DartParser:
+        parsers.append(DartParser)
 
     return parsers
 
