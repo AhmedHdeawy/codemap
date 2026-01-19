@@ -4,12 +4,14 @@
 
 ## Current Status
 
-**Supported Languages (13):**
+**Supported Languages (16):**
 - Python (stdlib ast)
 - TypeScript, JavaScript (tree-sitter)
 - Kotlin, Swift (tree-sitter)
 - Go, Java, C#, Rust (tree-sitter)
 - C, C++ (tree-sitter)
+- PHP (tree-sitter)
+- HTML, CSS (tree-sitter)
 - Markdown, YAML (custom parsers)
 
 ## Priority Tiers
@@ -29,17 +31,17 @@ Languages ranked by combined popularity from [TIOBE Index](https://www.tiobe.com
 | 7 | C | #3 | #12 (17%) | ✅ Done | tree-sitter-c |
 | 8 | Go | #8 | #13 (14%) | ✅ Done | tree-sitter-go |
 | 9 | Rust | #13 | #14 (13%) | ✅ Done | tree-sitter-rust |
-| 10 | PHP | #17 | #11 (18%) | ⏳ Planned | tree-sitter-php |
+| 10 | PHP | #17 | #11 (18%) | ✅ Done | tree-sitter-php |
 
-**Tier 1 Completion: 10/10 (100%) - Only PHP remaining!**
+**Tier 1 Completion: 10/10 (100%) ✅**
 
 ### Tier 2: High Priority (Ranks 11-25)
 
 | Rank | Language | TIOBE 2025 | Stack Overflow | Status | Package |
 |------|----------|------------|----------------|--------|---------|
 | 11 | SQL | - | #4 (52%) | ⏳ Planned | tree-sitter-sql |
-| 12 | HTML | - | #2 (54%) | ⏳ Planned | tree-sitter-html |
-| 13 | CSS/SCSS | - | #6 (42%) | ⏳ Planned | tree-sitter-css |
+| 12 | HTML | - | #2 (54%) | ✅ Done | tree-sitter-html |
+| 13 | CSS/SCSS | - | #6 (42%) | ✅ Done | tree-sitter-css |
 | 14 | Bash/Shell | - | #7 (33%) | ⏳ Planned | tree-sitter-bash |
 | 15 | Ruby | #18 | #17 (6%) | ⏳ Planned | tree-sitter-ruby |
 | 16 | Kotlin | #15 | #15 (9%) | ✅ Done | tree-sitter-kotlin |
@@ -53,7 +55,7 @@ Languages ranked by combined popularity from [TIOBE Index](https://www.tiobe.com
 | 24 | Elixir | #40 | #28 (3%) | ⏳ Planned | tree-sitter-elixir |
 | 25 | Haskell | #29 | #29 (2%) | ⏳ Planned | tree-sitter-haskell |
 
-**Tier 2 Completion: 2/15 (13%)**
+**Tier 2 Completion: 4/15 (27%)**
 
 ### Tier 3: Medium Priority (Config/Data Languages)
 
@@ -91,43 +93,38 @@ Languages ranked by combined popularity from [TIOBE Index](https://www.tiobe.com
 
 ## Implementation Plan
 
-### Phase 1: Complete Tier 1 (2 languages)
+### Phase 1: Complete Tier 1 ✅ DONE
 
-**C++ Parser**
+**C++ Parser** ✅
 ```
 Symbols: class, struct, function, method, namespace, enum, template
 File extensions: .cpp, .hpp, .cc, .hh, .cxx, .hxx
-Complexity: High (templates, namespaces, operator overloading)
 ```
 
-**C Parser**
+**C Parser** ✅
 ```
 Symbols: function, struct, enum, typedef, macro
 File extensions: .c, .h
-Complexity: Medium (preprocessor macros)
 ```
 
-**PHP Parser**
+**PHP Parser** ✅
 ```
 Symbols: class, interface, trait, function, method
 File extensions: .php
-Complexity: Medium
 ```
 
-### Phase 2: High-Value Web Languages
+### Phase 2: High-Value Web Languages (In Progress)
 
-**HTML Parser**
+**HTML Parser** ✅
 ```
-Symbols: element (semantic tags), id, class
+Symbols: element (semantic tags), id
 File extensions: .html, .htm
-Complexity: Low (flat structure)
 ```
 
-**CSS Parser**
+**CSS Parser** ✅
 ```
-Symbols: selector, class, id, keyframe, media-query
-File extensions: .css, .scss, .sass, .less
-Complexity: Medium (nested selectors in SCSS)
+Symbols: class, id, selector, pseudo, media, keyframe
+File extensions: .css
 ```
 
 **SQL Parser**
@@ -208,19 +205,22 @@ Instead of individual packages, consider using [tree-sitter-language-pack](https
 
 | Tier | Total | Done | Remaining | Completion |
 |------|-------|------|-----------|------------|
-| Tier 1 (Critical) | 10 | 9 | 1 | 90% |
-| Tier 2 (High Priority) | 15 | 2 | 13 | 13% |
+| Tier 1 (Critical) | 10 | 10 | 0 | 100% ✅ |
+| Tier 2 (High Priority) | 15 | 4 | 11 | 27% |
 | Tier 3 (Config/Data) | 8 | 0 | 8 | 0% |
 | Tier 4 (Emerging) | 10 | 0 | 10 | 0% |
-| **Total** | **43** | **11** | **32** | **26%** |
+| **Total** | **43** | **14** | **29** | **33%** |
 
 ---
 
 ## Next Actions
 
-1. [x] Implement C++ parser (Tier 1) ✅ Done
-2. [x] Implement C parser (Tier 1) ✅ Done
-3. [ ] Implement PHP parser (Tier 1) - PR #6 under review
-4. [ ] Evaluate tree-sitter-language-pack vs individual packages
-5. [ ] Add HTML/CSS/SQL parsers (Tier 2 web stack)
-6. [ ] Add Bash parser (Tier 2 DevOps)
+1. [x] Implement C++ parser (Tier 1) ✅
+2. [x] Implement C parser (Tier 1) ✅
+3. [x] Implement PHP parser (Tier 1) ✅
+4. [x] Add HTML parser (Tier 2) ✅
+5. [x] Add CSS parser (Tier 2) ✅
+6. [ ] Add Dart parser (Tier 2) - Mobile dev priority
+7. [ ] Add SQL parser (Tier 2) - Database queries
+8. [ ] Add Bash parser (Tier 2) - DevOps scripts
+9. [ ] Evaluate tree-sitter-language-pack vs individual packages
