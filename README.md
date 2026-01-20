@@ -369,6 +369,7 @@ pip install -e ".[all]"
 | **JavaScript** | tree-sitter | see below | class, function, method, async_function, async_method |
 | **Kotlin** | tree-sitter | see below | class, interface, function, method, object |
 | **Swift** | tree-sitter | see below | class, struct, protocol, enum, function, method |
+| **PHP** | tree-sitter | see below | class, interface, trait, enum, function, method |
 | **Go** | tree-sitter | see below | function, method, struct, interface, type |
 | **Java** | tree-sitter | see below | class, interface, enum, method |
 | **C#** | tree-sitter | see below | class, interface, struct, enum, method, property |
@@ -385,6 +386,7 @@ pip install -e ".[all]"
 pip install "codemap[treesitter] @ git+https://github.com/AZidan/codemap.git"  # TS/JS
 pip install "codemap[kotlin] @ git+https://github.com/AZidan/codemap.git"      # Kotlin
 pip install "codemap[swift] @ git+https://github.com/AZidan/codemap.git"       # Swift
+pip install "codemap[php] @ git+https://github.com/AZidan/codemap.git"         # PHP
 pip install "codemap[go] @ git+https://github.com/AZidan/codemap.git"          # Go
 pip install "codemap[java] @ git+https://github.com/AZidan/codemap.git"        # Java
 pip install "codemap[csharp] @ git+https://github.com/AZidan/codemap.git"      # C#
@@ -412,6 +414,7 @@ languages:
   - python
   - typescript
   - javascript
+  - php
 
 # Patterns to exclude
 exclude:
@@ -588,6 +591,7 @@ codemap/
 │   ├── javascript_parser.py
 │   ├── kotlin_parser.py   # Kotlin tree-sitter parser
 │   ├── swift_parser.py    # Swift tree-sitter parser
+│   ├── php_parser.py      # PHP tree-sitter parser
 │   ├── go_parser.py
 │   ├── java_parser.py
 │   ├── csharp_parser.py
