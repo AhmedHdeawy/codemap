@@ -120,8 +120,14 @@ It's not about any single lookup. It's about making **every** lookup cheaper and
 
 ## ⚡ Quick Start
 
+### Install via pip or uv
 ```bash
 pip install git+https://github.com/AZidan/codemap.git
+uv tool install codemap --from https://github.com/AZidan/codemap.git
+```
+
+### Use
+```bash
 codemap init .
 codemap watch . &   # Keep index updated in background
 codemap find "ClassName"
@@ -348,6 +354,19 @@ pip install "codemap[treesitter] @ git+https://github.com/AZidan/codemap.git"
 
 # All languages + watch mode
 pip install "codemap[all] @ git+https://github.com/AZidan/codemap.git"
+```
+
+### uv Install
+
+```bash
+# Basic (Python only)
+uv tool install codemap --from https://github.com/AZidan/codemap.git
+
+# With TypeScript/JavaScript support
+uv tool install codemap --from https://github.com/AZidan/codemap.git --with codemap[treesitter]
+
+# All languages + watch mode
+uv tool install codemap --from https://github.com/AZidan/codemap.git --with codemap[all]
 ```
 
 ### From Source
